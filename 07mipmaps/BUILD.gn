@@ -1,0 +1,65 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "07mipmaps.vert",
+    "07mipmaps.frag",
+  ]
+  if (is_mac || is_ios || is_tvos) {
+    extra_flags = [ "-DMETAL_NO_TEXTUREQUERYLOD" ]
+  }
+}
+
+# 0701png2texture is a host tool used to generate zebra01.ktx
+if (current_os == host_os) {
+  executable("0701png2texture") {
+    sources = [ "0701png2texture.cpp" ]
+
+    deps = [
+      "../src:base_application",
+      "//vendor/volcano",
+      "//src/gn/vendor/skia",
+      "//src/gn/vendor/skia:skiaglue",
+    ]
+  }
+
+  action("zebra01.ktx") {
+    deps = [ ":0701png2texture" ]
+    script = "png2texture.py"
+    args = [
+      rebase_path("zebra01.png", root_build_dir),
+      rebase_path("$target_gen_dir/$target_name", root_build_dir),
+      rebase_path("$target_gen_dir/zebra01mips.png", root_build_dir),
+    ]
+    outputs = [ "$target_gen_dir/zebra01.ktx" ]
+  }
+}
+
+add_to_app("add_to_app") {}
+resource("res") {
+  sources = [ "$target_gen_dir/zebra01.ktx" ]
+  deps = [ ":zebra01.ktx" ]
+}
+
+androidExecutable("07mipmaps") {
+  sources = [ "07mipmaps.cpp" ]
+
+  deps = [
+    ":res",
+    ":shaders",
+    "../src:load_gli",
+    "../src/uniformglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/gli",
+    "//src/gn/vendor/glm",
+  ]
+}
+
+group("default") {
+  deps = [
+    ":07mipmaps",
+  ]
+}

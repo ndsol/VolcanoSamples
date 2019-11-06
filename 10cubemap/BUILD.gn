@@ -1,0 +1,90 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+import("//src/gn/vendor/skia/skiaTarget.gni")
+
+# 1001sphere2cube is a host tool used to generate a cube map
+if (current_os == host_os) {
+  glslangVulkanToHeader("1001shaders") {
+    sources = [
+      "1001sphere2cube.vert",
+      "1001sphere2cube.frag",
+    ]
+  }
+
+  executable("1001sphere2cube") {
+    sources = [ "1001sphere2cube.cpp" ]
+
+    deps = [
+      ":1001shaders",
+      "../src:base_application",
+      "../src:scanlinedecoder",
+      "//vendor/volcano",
+      "//src/gn/vendor/skia:skiaglue",
+    ]
+  }
+
+  action("cubemap0.jpg") {
+    deps = [ ":1001sphere2cube" ]
+    script = "sphere2cube.py"
+    args = [
+      rebase_path("umhlanga-1k.jpg", root_build_dir),
+      rebase_path("$target_gen_dir/$target_name", root_build_dir),
+    ]
+    outputs = [
+      "$target_gen_dir/cubemap0.jpg",  # Left face
+      "$target_gen_dir/cubemap1.jpg",  # Front face
+      "$target_gen_dir/cubemap2.jpg",  # Right face
+      "$target_gen_dir/cubemap3.jpg",  # Back face
+      "$target_gen_dir/cubemap4.jpg",  # Top face
+      "$target_gen_dir/cubemap5.jpg",  # Bottom face
+    ]
+  }
+}
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "10cubemap.vert",
+    "10cubemap.frag",
+  ]
+}
+
+copy("10model.assbin") {
+  sources = [ "../06threepipelines/treasure_smooth.assbin" ]
+  outputs = [ "$target_gen_dir/10model.assbin" ]
+}
+
+add_to_app("add_to_app") {}
+resource("res") {
+  sources = [
+    "$root_build_dir/gen/10cubemap/cubemap0.jpg",
+    "$root_build_dir/gen/10cubemap/cubemap1.jpg",
+    "$root_build_dir/gen/10cubemap/cubemap2.jpg",
+    "$root_build_dir/gen/10cubemap/cubemap3.jpg",
+    "$root_build_dir/gen/10cubemap/cubemap4.jpg",
+    "$root_build_dir/gen/10cubemap/cubemap5.jpg",
+
+    "$target_gen_dir/10model.assbin",
+  ]
+  deps = [
+    ":cubemap0.jpg",
+    ":10model.assbin",
+  ]
+}
+
+androidExecutable("10cubemap") {
+  sources = [ "10cubemap.cpp" ]
+
+  deps = [
+    ":shaders",
+    ":res",
+    "../src:assimpglue",
+    "../src:scanlinedecoder",
+    "../src/uniformglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/gli",
+    "//src/gn/vendor/glm",
+    "//src/gn/vendor/assimp",
+  ]
+}

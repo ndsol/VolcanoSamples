@@ -1,0 +1,20 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "03rendertodisk.vert",
+    "03rendertodisk.frag",
+  ]
+}
+
+executable("03rendertodisk") {
+  sources = [ "03rendertodisk.cpp" ]
+
+  deps = [
+    ":shaders",
+    "../src:base_application",
+    "//vendor/volcano",
+  ]
+}

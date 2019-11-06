@@ -1,0 +1,32 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "06threepipelines.vert",
+    "06phong.frag",
+    "06toon.frag",
+    "06wireframe.frag",
+  ]
+}
+
+add_to_app("add_to_app") {}
+resource("res") {
+  sources = [ "treasure_smooth.assbin" ]
+}
+
+androidExecutable("06threepipelines") {
+  sources = [ "06threepipelines.cpp" ]
+
+  deps = [
+    ":shaders",
+    ":res",
+    "../src/uniformglue",
+    "../src:assimpglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/glm",
+    "//src/gn/vendor/assimp",
+  ]
+}

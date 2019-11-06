@@ -1,0 +1,60 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+source_set("load_gli") {
+  sources = [ "load_gli.cpp" ]
+  public_deps = [
+    "//src/gn/vendor/glfw",
+    "//src/gn/vendor/gli",
+    "//vendor/volcano",
+  ]
+}
+
+source_set("base_application") {
+  sources = ["base_application.cpp"]
+  public_deps = [
+    "//src/gn/vendor/glfw",
+    "//vendor/volcano",
+  ]
+  if (is_android) {
+    libs = [
+      "android",
+      "log",
+    ]
+  } else if (is_ios) {
+    assert(false, "Volcano does not support iOS yet")
+  } else {
+    public_deps += [ "//src/gn/vendor/vulkan" ]
+  }
+}
+
+config("assimp_config") {
+  include_dirs = [
+    "//vendor/assimp/include",
+    "$root_build_dir/assimp/include",
+  ]
+}
+
+source_set("assimpglue") {
+  sources = [ "assimpglue.cpp" ]
+  deps = [
+    "//src/gn/vendor/assimp",
+    "//vendor/volcano:command",
+    ":base_application",
+  ]
+  if (is_android) {
+    libs = [
+      "android",
+      "log",
+    ]
+    public_deps = [ "//src/gn/vendor/glfw" ] # for native_app_glue
+  }
+}
+
+source_set("scanlinedecoder") {
+  sources = [ "scanlinedecoder.cpp" ]
+  public_deps = [
+    "//src/gn/vendor/glfw",
+    "//src/gn/vendor/skia",
+    "//vendor/volcano",
+  ]
+}

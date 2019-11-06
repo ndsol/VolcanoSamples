@@ -1,0 +1,12 @@
+[submodule "vendor/volcano"]
+	path = vendor/volcano
+	url = https://github.com/ndsol/volcano
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/ndsol/subassimp
+[submodule "vendor/libcurl"]
+	path = vendor/libcurl
+	url = https://github.com/ndsol/libcurl
+[submodule "vendor/libao"]
+	path = vendor/libao
+	url = https://github.com/ndsol/sublibao

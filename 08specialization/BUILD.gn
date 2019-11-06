@@ -1,0 +1,52 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "08specialization.vert",
+    "08specialization.frag",
+  ]
+}
+
+if (current_os == host_os) {
+  copy("08texture.ktx") {
+    sources = [ "$root_build_dir/gen/07mipmaps/zebra01.ktx" ]
+    outputs = [ "$target_gen_dir/08texture.ktx" ]
+    deps = [ "../07mipmaps:zebra01.ktx" ]
+  }
+}
+
+copy("08model.assbin") {
+  sources = [ "../06threepipelines/treasure_smooth.assbin" ]
+  outputs = [ "$target_gen_dir/08model.assbin" ]
+}
+
+add_to_app("add_to_app") {}
+resource("res") {
+  sources = [
+    "$target_gen_dir/08model.assbin",
+    "$target_gen_dir/08texture.ktx",
+  ]
+  deps = [
+    ":08texture.ktx",
+    ":08model.assbin",
+  ]
+}
+
+androidExecutable("08specialization") {
+  sources = [ "08specialization.cpp" ]
+
+  deps = [
+    ":shaders",
+    ":res",
+    "../src:assimpglue",
+    "../src:load_gli",
+    "../src/uniformglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/gli",
+    "//src/gn/vendor/glm",
+    "//src/gn/vendor/assimp",
+  ]
+}

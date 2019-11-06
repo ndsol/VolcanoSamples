@@ -1,0 +1,51 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "11hdr.vert",
+    "11hdr.frag",
+    "11sphere2cube.frag",
+    "11sphere2cube.vert",
+  ]
+}
+
+copy("11input.jpg") {
+  sources = [ "../10cubemap/umhlanga-1k.jpg" ]
+  outputs = [ "$target_gen_dir/11input.jpg" ]
+}
+
+copy("11model.assbin") {
+  sources = [ "../06threepipelines/treasure_smooth.assbin" ]
+  outputs = [ "$target_gen_dir/11model.assbin" ]
+}
+
+add_to_app("add_to_app") {}
+resource("res") {
+  sources = [
+    "$target_gen_dir/11input.jpg",
+    "$target_gen_dir/11model.assbin",
+  ]
+  deps = [
+    ":11input.jpg",
+    ":11model.assbin",
+  ]
+}
+
+androidExecutable("11hdr") {
+  sources = [ "11hdr.cpp" ]
+
+  deps = [
+    ":shaders",
+    ":res",
+    "../src/uniformglue",
+    "../src:assimpglue",
+    "../src:scanlinedecoder",
+    "//vendor/volcano",
+    "//src/gn/vendor/gli",
+    "//src/gn/vendor/glm",
+    "//src/gn/vendor/assimp",
+  ]
+}

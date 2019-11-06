@@ -1,0 +1,21 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "01glfw.vert",  # compile to bytecode available at "01glfw/01glfw.vert.h"
+    "01glfw.frag",  # compile to bytecode available at "01glfw/01glfw.frag.h"
+  ]
+}
+
+androidExecutable("01glfw") {
+  sources = [ "01glfw.cpp" ]
+
+  deps = [
+    ":shaders",  # Tells the compiler where to find 01glfw.vert.h
+    "../src:base_application",  # pulls in GLFW for you
+    "//vendor/volcano",
+  ]
+}

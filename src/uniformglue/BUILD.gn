@@ -1,0 +1,48 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+import("//src/gn/vendor/glslangValidator.gni")
+
+declare_args() {
+  # #defines VOLCANO_TEST_NO_MULTITOUCH for uniform_glue.h:
+  define_volcano_test_no_multitouch = false
+}
+
+imgui_dir = "vendor/volcano/vendor/skia/third_party/externals/imgui"
+
+config("imgui_config") {
+  include_dirs = [ "../../$imgui_dir" ]
+  defines = [ "IMGUI_DISABLE_OBSOLETE_FUNCTIONS" ]
+  if (!is_win) {
+    cflags = [ "-Wno-format-nonliteral" ]
+  }
+  if (define_volcano_test_no_multitouch) {
+    defines += [ "VOLCANO_TEST_NO_MULTITOUCH" ]
+  }
+}
+
+glslangVulkanToHeader("imgui_shaders") {
+  sources = [
+    "imgui.vert",
+    "imgui.frag",
+  ]
+}
+
+source_set("uniformglue") {
+  sources = [
+    "uniformglue.cpp",
+    "uniformglfw.cpp",
+    "vk_imgui_pipe.cpp",
+    "vk_imgui_render.cpp",
+    "../../$imgui_dir/imgui.cpp",
+    "../../$imgui_dir/imgui_draw.cpp",
+    "../../$imgui_dir/imgui_widgets.cpp",
+    "../../$imgui_dir/imgui_demo.cpp",
+  ]
+  public_configs = [ ":imgui_config" ]
+  public_deps = [ "..:base_application" ]
+
+  deps = [
+    ":imgui_shaders",
+    "//src/gn/vendor/glm",
+    "//vendor/volcano",
+  ]
+}

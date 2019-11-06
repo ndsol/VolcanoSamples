@@ -1,0 +1,4 @@
+# build.cmd must always use crlf
+build.cmd text eol=crlf
+# asset files are treated as binary
+06threepipelines/treasure_smooth.dae binary

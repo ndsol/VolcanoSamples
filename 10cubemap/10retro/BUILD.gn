@@ -1,0 +1,70 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "10retro.vert",
+    "10retro.frag",
+  ]
+}
+
+source_set("retroweb") {
+  deps = [
+    "//vendor/volcano",
+    "//src/gn/vendor/libcurl",
+    "//src/gn/vendor/skia/zlib:miniz",
+    "//src/gn/vendor/glfw",  # retrojni.c calls into GLFW
+    "//src/gn/vendor/glm",
+    "../../src/uniformglue",
+  ]
+  sources = [
+    "retroapp.cpp",
+    "retrocache.cpp",
+    "retrocore.cpp",
+    "retroglfw.cpp",
+    "retrohttp.cpp",
+    "retroinput.cpp",
+    "retrojni.c",
+    "retrotype.cpp",
+    "retroweb.cpp",
+  ]
+}
+
+add_to_app("add_to_app") {}
+permission("permission") {
+  android = [
+    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+  ]
+}
+
+androidExecutable("10retro") {
+  sources = [
+    "10retro.cpp",
+  ]
+  configs_add = [ ":add_to_app" ]
+
+  deps = [
+    ":shaders",
+    ":permission",
+    ":retroweb",
+    "../../src/uniformglue",
+    "//src/gn/vendor/glm",
+    "//src/gn/vendor/libao",
+  ]
+}
+
+if (!is_android) {
+  executable("10gtest") {
+    testonly = true
+    sources = [
+      "10gtest.cpp",
+    ]
+    deps = [
+      ":retroweb",
+      "//vendor/volcano",
+      "//src/gn/vendor/googletest",
+    ]
+  }
+}

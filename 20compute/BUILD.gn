@@ -1,0 +1,72 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+#
+# There are several different samples in this directory.
+# * 20texture: GPU-accelerated texture compression tool
+
+import("//src/gn/vendor/glslangValidator.gni")
+
+# 20texture is a host-only tool useful as part of your asset pipeline.
+# It is not intended to demonstrate something you would do in a mobile app.
+if (current_os == host_os) {
+  glslangVulkanToHeader("20simple-shaders") {
+    sources = [
+      "20simple.vert",
+      "20simple.frag",
+      "20simplekernel.comp",
+    ]
+  }
+
+  executable("20simple") {
+    sources = [
+      "20simple.cpp",
+      "20simpleinput.cpp",
+      "20simpleui.cpp",
+      "20simplegpu.cpp",
+    ]
+
+    deps = [
+      ":20simple-shaders",
+      "../src/uniformglue",
+      "../src:scanlinedecoder",
+      "//vendor/volcano",
+      "//src/gn/vendor/glm",
+      "//src/gn/vendor/skia",
+    ]
+  }
+
+  glslangVulkanToHeader("20texture-shaders") {
+    sources = [
+      "20texture.vert",
+      "20texture.frag",
+      "20texturekernel.comp",
+    ]
+  }
+
+  executable("20texture") {
+    sources = [
+      "20texture.cpp",
+      "20textureinput.cpp",
+      "20textureui.cpp",
+      "20texturegpu.cpp",
+    ]
+
+    deps = [
+      ":20texture-shaders",
+      "../src/uniformglue",
+      "../src:scanlinedecoder",
+      "//vendor/volcano",
+      "//src/gn/vendor/glm",
+      "//src/gn/vendor/skia",
+    ]
+  }
+}
+
+group("20compute") {
+  deps = []
+  if (current_os == host_os) {
+    deps += [
+      ":20simple",
+      ":20texture",
+    ]
+  }
+}

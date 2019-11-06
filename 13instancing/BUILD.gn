@@ -1,0 +1,26 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("shaders") {
+  sources = [
+    "13inst-ubo.vert",
+    "13inst-buf.vert",
+    "13instancing.frag",
+  ]
+}
+
+androidExecutable("13instancing") {
+  sources = [ "13instancing.cpp" ]
+
+  deps = [
+    ":shaders",
+    "../src/asset",
+    "../src/uniformglue",
+    "../src:assimpglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/gli",
+    "//src/gn/vendor/glm",
+  ]
+}

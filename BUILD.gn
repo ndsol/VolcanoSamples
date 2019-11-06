@@ -1,0 +1,39 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+import("//src/gn/vendor/glslangValidator.gni")
+
+# If these samples build ok, then assume all samples will build ok.
+group("build_first") {
+  deps = [
+    "//01glfw",
+    #"//02sdl",
+    "//03rendertodisk",
+    "//04android",
+    "//05indexbuffer",
+  ]
+}
+
+# Have to mention it or gn will not write it as part of build.ninja, so it might
+# as well not exist at that point. But these are not build_first targets. They
+# can be built one at a time as you explore them, because the build time adds
+# up too quickly otherwise.
+group("look_at_later") {
+  deps = [
+    "//06threepipelines",
+    "//07mipmaps",
+    "//08specialization",
+    "//09fullscreen",
+    "//10cubemap",
+    "//10cubemap/10retro:10retro",
+    "//11hdr",
+    "//13instancing",
+    "//20compute",
+    "//21physics",
+  ]
+}
+
+group("default") {
+  deps = [
+    ":build_first",
+    "//src/gn/vendor/vulkan",
+  ]
+}

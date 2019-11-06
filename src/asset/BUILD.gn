@@ -1,0 +1,14 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+source_set("asset") {
+  sources = [
+    "asset.cpp",
+    "library.cpp",
+    "scene.cpp",
+  ]
+  deps = [
+    "../uniformglue",
+    "//src/gn/vendor/glm",
+    "//vendor/volcano",
+  ]
+}

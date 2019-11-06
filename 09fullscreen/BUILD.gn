@@ -1,0 +1,83 @@
+# Copyright (c) 2017-2018 the Volcano Authors. Licensed under GPLv3.
+
+import("//src/gn/vendor/glslangValidator.gni")
+import("//src/gn/vendor/androidExecutable.gni")
+
+glslangVulkanToHeader("09fullscreenshaders") {
+  sources = [
+    "09fullscreen.vert",
+    "09fullscreen.frag",
+  ]
+}
+
+androidExecutable("09fullscreen") {
+  sources = [ "09fullscreen.cpp" ]
+
+  deps = [
+    ":09fullscreenshaders",
+    "../src/uniformglue",
+    "//vendor/volcano",
+    "//src/gn/vendor/glm",
+  ]
+}
+
+if (!is_android) {
+  glslangVulkanToHeader("09snowshaders") {
+    sources = [
+      "09snow.vert",
+      "09snow.frag",
+    ]
+  }
+
+  source_set("screenshot") {
+    sources = [ "screenshot.cpp" ]
+    libs = []
+    deps = [
+      "//vendor/volcano",
+      "//src/gn/vendor/glfw",
+    ]
+
+    if (is_win) {
+    } else if (is_mac) {
+      # Needs -framework CoreGraphics, pulled in by glfw
+      sources += [ "screenshot_cocoa.m" ]
+      deps += [ "//src/gn/vendor/vulkan:MoltenVK_group" ]
+      include_dirs = [ "../vendor/volcano/vendor/vulkan-loader/MoltenVK/MoltenVK" ]
+    } else if (is_posix) {
+      # This might be fragile. Maybe replace libs with ldflags += [ got ]?
+      got = exec_script(
+        rebase_path(volcano_prefix + "/src/gn/vendor/pkgconfig.py", ".",
+                    rebase_path(target_out_dir, root_build_dir)),
+        [ "--libs", "xext" ], "trim string")
+      want = "-lXext"
+      assert(got == want, "pkg-config --libs xext: got $got want $want")
+      got = exec_script(
+        rebase_path(volcano_prefix + "/src/gn/vendor/pkgconfig.py", ".",
+                    rebase_path(target_out_dir, root_build_dir)),
+        [ "--libs", "x11-xcb" ], "trim string")
+      want = "-lX11-xcb -lX11 -lxcb"
+      assert(got == want, "pkg-config --libs x11-xcb: got $got want $want")
+      got = exec_script(
+        rebase_path(volcano_prefix + "/src/gn/vendor/pkgconfig.py", ".",
+                    rebase_path(target_out_dir, root_build_dir)),
+        [ "--libs", "xcb-shm" ], "trim string")
+      want = "-lxcb-shm"
+      assert(got == want, "pkg-config --libs xcb-shm: got $got want $want")
+      libs += [ "Xext", "X11-xcb", "X11", "xcb", "xcb-shm" ]
+    }
+  }
+
+  executable("09snow") {
+    sources = [
+      "09snow.cpp",
+    ]
+
+    deps = [
+      ":09snowshaders",
+      ":screenshot",
+    "../src/uniformglue",
+      "//vendor/volcano",
+      "//src/gn/vendor/glm",
+    ]
+  }
+}
